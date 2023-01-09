@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue實作 todoList</title>
+    <!-- Bootstrap CSS 4.2.1 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+    <div id="app" class="container mt-3">
+        
+        <div class="banner">
+            <img src="static/img/banner/logo.jpg" class="logo rounded-circle">
+            <img src="static/img/banner/banner.png" class="img-fluid" alt="banner-shao">
+        </div>
+        <div class="container mt-4">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">待辦事項</span>
+                </div>
+                <!-- 讓 enter 可觸發事件新增內容 @keyup.enter -->
+                <input type="text" class="form-control" v-model="newTodo" @click="addTodo" @keyup.enter="addTodo" placeholder="準備要做的任務">
+                <div class="input-group-append">
+                    <button class="btn btn-primary" type="button">新增</button>
+                </div>
+            </div>
+            <div class="card text-center">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs">
+                        <li class="nav-item">
+                            <!-- 當 vue data 中的 visibility 為 all，會加上 active 這個 class -->
+                            <a class="nav-link active" :class="{'all': visibility == 'all'}" @click="visibility='all'" href="#">全部</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" :class="{'active': visibility == 'active'}" @click="visibility='active'" href="#">進行中</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" :class="{'completed': visibility == 'completed'}" @click="visibility='completed'" href="#">已完成</a>
+                        </li>
+                    </ul>
+                </div>
+                <ul class="list-group list-group-flush text-left">
+                    <li class="list-group-item" v-for="(item, key) in filteredTodos" @dblclick="editTodo(item)">
+                        <div class="d-flex" v-if="item.id !== cacheTodo.id">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" v-bind:id="item.id" v-model="item.completed">
+                                <!-- ★★★★★★ -->
+                                <!-- 當 vue data 中的 completed 屬性值為 true，會加上 completed 這個 class，詳細設定在 style.css-->
+                                <label class="form-check-label" :class="{'completed': item.completed}" v-bind:for="item.id">
+                                    {{ item.title }}
+                                </label>
+                            </div>
+                            <button type="button" class="close ml-auto" @click="removeTodo(key)" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <input type="text" class="form-control" 
+                        @keyup.esc="cancelEdit"
+                        @keyup.enter ="doneEdit(item)"
+                        v-model="cacheTitle" v-if="item.id == cacheTodo.id">
+                    </li>
+                    <!-- <li class="list-group-item">
+                        <input type="text" class="form-control">
+                    </li> -->
+                </ul>
+                <div class="card-footer d-flex justify-content-between">
+                    <span>還有 {{ undoneTodos.length }} 筆任務未完成</span>
+                    <a href="#" @click="removeAll">清除所有任務</a>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</body>
+<!-- import vue and axios -->
+<script src="static/js/vue.global.js"> </script>
+<script src="static/js/axios.min.js"> </script>
+
+<!-- Vue3 -->
+<script>
+    const vm = Vue.createApp({
+        data(){
+            return {
+                newTodo: '',
+                todos: [{
+                    id: '123',
+                    title: '代辦事項1',
+                    completed: false,
+                }],
+                visibility: 'all',
+                // 暫存我們要修改的內容物件
+                cacheTodo: {},
+                // 預存修改後內容標題
+                cacheTitle: '',
+            }
+        },
+        methods: {
+            addTodo(){
+                var value = this.newTodo.trim(); //消除前後空白
+                console.log(value)
+                var timeStamp = Math.floor(Date.now());
+                if (!value) {
+                    return;   //若內容為空白就終止 function
+                }
+                this.todos.push({
+                    id: timeStamp,
+                    title: value,
+                    computed: false
+                });
+                this.newTodo = '';
+            },
+            removeTodo(key){
+                this.todos.splice(key, 1)
+            },
+            editTodo(item){
+                console.log(item); //測試雙擊是否觸發事件
+                this.cacheTodo = item; 
+                this.cacheTitle = item.title;
+            },
+            cancelEdit(){
+                this.cacheTodo = {}
+            },
+            doneEdit(item) {
+                item.title = this.cacheTitle;
+                this.cacheTitle = '';
+                this.cacheTodo = {}
+            },
+            removeAll(){
+                this.todos = [];
+            }
+        },
+        computed: {
+            filteredTodos() {
+                if(this.visibility == 'all'){
+                    return this.todos;
+                }else if(this.visibility == 'active'){
+                    var newTodos = [];
+                    this.todos.forEach(function(item){
+                        if(!item.completed){
+                            newTodos.push(item);
+                        }
+                    })
+                    return newTodos;
+                }else if (this.visibility == 'completed') {
+                    var newTodos = [];
+                    this.todos.forEach(function(item){
+                        if (item.completed) {
+                            newTodos.push(item);
+                        }
+                    })
+                    return newTodos;
+                } 
+            },
+            undoneTodos(){
+                console.log("呼叫 undoneTodos()")
+                return this.todos.filter(todo =>todo.completed != true);
+            }
+        }
+    });
+    vm.mount('#app');
+</script>
+
+<!-- Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+</html>

@@ -1,0 +1,53 @@
+.completed {
+    text-decoration: line-through
+}
+.logo{
+  width: 90px;
+  position: absolute;
+  left: 20%;
+  top: 5.2%;
+  transition: .2s ease-in-out;
+}
+.logo:hover{
+  transform: scale(1.1);
+  cursor: pointer;
+}
+.banner{
+  position: relative;
+  width: 1130px;
+  /* height: 136px; */
+  margin: auto;
+}
+/* 若寬度小於等於 1200px */
+@media (max-width:1200px){
+  .banner{
+    width: 924px;
+  }
+}
+/* 若寬度小於等於 991px */
+@media (max-width:991px){
+  .banner{
+    width: 682px;
+  }
+}
+/* 若寬度小於等於 768px */
+@media (max-width:768px){
+  .banner{
+    width: 513px;
+  }
+}
+/* 若寬度小於等於 500px */
+@media (max-width:501px){
+  .banner{
+    width: 454px;
+  }
+  .logo{
+    width: 40px;
+    left: 11%;
+    top: 4.2%;
+  }
+}
+/* 如果裝置是直立的 */
+/* @media (orientation: portrait){
+
+} */
