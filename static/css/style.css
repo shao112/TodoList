@@ -1,3 +1,11 @@
+.test{
+  width: 100px;
+  height: 60px;
+  color: white;
+  background-color: #28434f;
+  /* box-shadow: x-位移 y-位移 blur-模糊的值 spread-擴散的值 color-顏色 inset-是否在內側 */
+  box-shadow: 0 0 10px 5px #7bb2c9 ;
+}
 .completed {
     text-decoration: line-through
 }
