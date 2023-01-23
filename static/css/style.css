@@ -4,8 +4,8 @@
 .logo{
   width: 90px;
   position: absolute;
-  left: 20%;
-  top: 5.2%;
+  left: 120px;
+  top: 25px;
   transition: .2s ease-in-out;
 }
 .logo:hover{
